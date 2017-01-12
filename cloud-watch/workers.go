@@ -10,7 +10,7 @@ import (
 	lg "github.com/advantageous/go-logback/logging"
 )
 
-type Runner struct {
+type JournalReaderRunner struct {
 	records         []*Record
 	bufferSize      int
 	logger          lg.Logger
@@ -26,10 +26,10 @@ type Runner struct {
 	instanceId      string
 }
 
-func (r *Runner) Stop() {
+func (r *JournalReaderRunner) Stop() {
 	r.queueManager.Stop()
 }
-func (r *Runner) addToCloudWatchBatch(record *Record) {
+func (r *JournalReaderRunner) addToCloudWatchBatch(record *Record) {
 
 	r.records = append(r.records, record)
 
@@ -38,7 +38,7 @@ func (r *Runner) addToCloudWatchBatch(record *Record) {
 	}
 }
 
-func (r *Runner) sendBatch() {
+func (r *JournalReaderRunner) sendBatch() {
 
 	if len(r.records) > 0 {
 		batchToSend := r.records
@@ -52,12 +52,12 @@ func (r *Runner) sendBatch() {
 	}
 }
 
-func NewRunnerInternal(journal Journal, repeater JournalRepeater, logger lg.Logger, config *Config, start bool) *Runner {
+func JournalReaderRunner(journal Journal, repeater JournalRepeater, logger lg.Logger, config *Config, start bool) *JournalReaderRunner {
 
 	if repeater == nil {
 		panic("Repeater can't be nil")
 	}
-	r := &Runner{journal: journal,
+	r := &JournalReaderRunner{journal: journal,
 		journalRepeater: repeater,
 		logger:          logger,
 		config:          config,
@@ -117,18 +117,18 @@ func NewRunnerInternal(journal Journal, repeater JournalRepeater, logger lg.Logg
 
 	return r
 }
-func NewRunner(journal Journal, repeater JournalRepeater, logger lg.Logger, config *Config) *Runner {
-	return NewRunnerInternal(journal, repeater, logger, config, true)
+func NewRunner(journal Journal, repeater JournalRepeater, logger lg.Logger, config *Config) *JournalReaderRunner {
+	return JournalReaderRunner(journal, repeater, logger, config, true)
 
 }
 
-func (r *Runner) makeTerminateChannel() <-chan os.Signal {
+func (r *JournalReaderRunner) makeTerminateChannel() <-chan os.Signal {
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	return ch
 }
 
-func (r *Runner) readOneRecord() (*Record, bool, error) {
+func (r *JournalReaderRunner) readOneRecord() (*Record, bool, error) {
 
 	count, err := r.journal.Next()
 	if err != nil {
@@ -157,7 +157,7 @@ func (r *Runner) readOneRecord() (*Record, bool, error) {
 
 }
 
-func (r *Runner) readRecords() {
+func (r *JournalReaderRunner) readRecords() {
 
 	sendQueue := r.queueManager.SendQueueWithAutoFlush(time.Duration(r.config.FlushLogEntries) * time.Millisecond)
 
@@ -184,7 +184,7 @@ func (r *Runner) readRecords() {
 
 }
 
-func (r *Runner) positionCursor() {
+func (r *JournalReaderRunner) positionCursor() {
 
 	if r.config.Tail {
 		err := r.journal.SeekTail()

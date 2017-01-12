@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	jcw "github.com/advantageous/systemd-cloud-watch/cloud-watch"
+	jcw "github.com/cloudurable/systemd-cloud-watch/cloud-watch"
 	"os"
 	lg "github.com/advantageous/go-logback/logging"
 )
@@ -29,7 +29,7 @@ func main() {
 
 	config := jcw.CreateConfig(configFilename, logger)
 	journal := jcw.CreateJournal(config, logger)
-	repeater := jcw.CreateRepeater(config, logger)
+	repeater := jcw.CreateJournalRepeater(config, logger)
 
 	jcw.NewRunner(journal, repeater, logger, config)
 

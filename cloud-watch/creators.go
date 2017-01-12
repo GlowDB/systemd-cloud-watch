@@ -24,7 +24,7 @@ func CreateJournal(config *Config, logger lg.Logger) Journal {
 
 }
 
-func CreateRepeater(config *Config, logger lg.Logger) JournalRepeater {
+func CreateJournalRepeater(config *Config, logger lg.Logger) JournalRepeater {
 
 	var repeater JournalRepeater
 	var err error

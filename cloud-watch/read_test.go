@@ -47,7 +47,7 @@ func TestReadFromJournalError(t *testing.T) {
 
 	journal.SetError(errors.New("TEST ERROR"))
 	journal.SetCount(1)
-	runner := NewRunnerInternal(journal, NewMockJournalRepeater(), logger, config, false)
+	runner := JournalReaderRunner(journal, NewMockJournalRepeater(), logger, config, false)
 
 	go func() {
 
@@ -88,7 +88,7 @@ func TestReadAllFromJournal(t *testing.T) {
 
 	journal.SetCount(10)
 
-	runner := NewRunnerInternal(journal, NewMockJournalRepeater(), logger, config, false)
+	runner := JournalReaderRunner(journal, NewMockJournalRepeater(), logger, config, false)
 	runner.Stop()
 	go runner.readRecords()
 

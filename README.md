@@ -1,3 +1,29 @@
+# Yet another fork of Systemd Journal CloudWatch Writer
+
+Why this fork.
+
+The project by Rick Hightower and Geoff Chandler forked a project that was a bit broken that repeated journald logs
+ to cloudwatch. They fixed it up and made is useable and performant.
+
+If you are using systemd based operating system (all modern Linux server distributions use systemd and journald), then
+you want critical messages (errors, warnings, etc.) from the OS and core daemons to be sent to AWS cloudwatch.
+
+Once they are in AWS CloudWatch logs, you can write triggers and filters to trigger alerts which trigger lambda function, etc.
+They become actionable.
+
+However, as great as journald is, you still have legacy apps that use syslog and then you have Java application that support MDC.
+Thus instead of just getting logs from journald and batch sending them to cloudwatch, we want to repeat logs from syslog (over UDP) and
+repeat logs from Java applications (like Cassandra) over [JSON logstash format using logback](https://github.com/logstash/logstash-logback-encoder).
+
+This is mainly for our [Cassandra AMI](https://github.com/cloudurable/cassandra-image) from [Cloudurable](http://cloudurable.com/),
+but it can be used other places.
+
+* Use QBit to pass / batch log messages efficiently
+* Listen on UDP syslog
+* Listen to UDP JSON messages (logstash-logback-encoder).
+
+The rest of the readme is largely adapted from [advantageous](https://github.com/advantageous/systemd-cloud-watch).
+
 # Systemd Journal CloudWatch Writer
 
 This utility reads from the [systemd journal](https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html),
